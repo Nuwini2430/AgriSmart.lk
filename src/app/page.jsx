@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -20,12 +21,17 @@ export default function Home() {
 
       {/* Right side top buttons */}
       <div className={styles.topButtons}>
+        <Link href="/signin">
         <button className={`${styles.authButton} ${styles.signInButton}`}>
           Sign In
         </button>
+        </Link>
+        
+        <Link href="/signup">
         <button className={`${styles.authButton} ${styles.signUpButton}`}>
           Sign Up
         </button>
+        </Link>
       </div>
 
       <video
