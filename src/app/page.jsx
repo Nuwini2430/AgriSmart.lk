@@ -58,9 +58,38 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-4">
+        {/* Grid with Video Left, Text Right */}
         <div className="grid md:grid-cols-2 gap-6 items-center min-h-[85vh]">
           
-          {/* Left Side - Text Content */}
+          {/* LEFT SIDE - Logo Animation Video */}
+          <div className="relative">
+            <div className="relative w-full aspect-square max-w-2xl mx-auto">
+              {/* Video Container */}
+              <div className="relative w-full h-full flex items-center justify-center">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-contain rounded-xl mix-blend-multiply"
+                >
+                  <source src="/videos/cutelogo.mp4" type="video/mp4" />
+                  
+                  {/* Fallback if video doesn't load */}
+                  <div className="w-64 h-64 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center shadow-2xl">
+                    <span className="text-8xl text-white animate-bounce">🌾</span>
+                  </div>
+                </video>
+              </div>
+            </div>
+            
+            {/* Caption */}
+            <p className="text-center text-sm text-gray-500 mt-3">
+              AgriSmart - Sri Lanka's Smart Farming Revolution
+            </p>
+          </div>
+
+          {/* RIGHT SIDE - Text Content */}
           <div className="space-y-5">
             <h1 className="text-4xl md:text-5xl font-bold text-secondary leading-tight">
               <span className="text-primary">Fair Prices</span> for Your Harvest
@@ -116,34 +145,6 @@ export default function Home() {
                 <div className="text-sm text-gray-600">Crops</div>
               </div>
             </div>
-          </div>
-
-          {/* Right Side - Logo Animation Video */}
-          <div className="relative">
-            <div className="relative w-full aspect-square max-w-2xl mx-auto">
-              {/* Video Container */}
-              <div className="relative w-full h-full flex items-center justify-center">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-contain rounded-xl mix-blend-multiply"
-                >
-                  <source src="/videos/cutelogo.mp4" type="video/mp4" />
-                  
-                  {/* Fallback if video doesn't load */}
-                  <div className="w-64 h-64 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center shadow-2xl">
-                    <span className="text-8xl text-white animate-bounce">🌾</span>
-                  </div>
-                </video>
-              </div>
-            </div>
-            
-            {/* Caption - FIXED: No emoji */}
-            <p className="text-center text-sm text-gray-500 mt-3">
-              AgriSmart - Sri Lanka's Smart Farming Revolution
-            </p>
           </div>
         </div>
       </main>
