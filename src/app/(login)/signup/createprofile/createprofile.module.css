@@ -1,0 +1,211 @@
+/* src/components/CreateProfile.css */
+
+/* Google Font එකක් import කරගන්න (විකල්පයි) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Main container - centers the card */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* White card style */
+.profile-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Title styles */
+.title {
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Form group - each field */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Required star */
+.required {
+  color: #e74c3c;
+  margin-left: 2px;
+}
+
+/* Input fields styling */
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Textarea specific */
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Radio button group */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #667eea; /* Modern browsers - changes radio color */
+}
+
+/* File input styling */
+.form-group input[type="file"] {
+  padding: 10px;
+  background: #f8f9fa;
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button {
+  background: #667eea;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5a67d8;
+}
+
+/* Image preview */
+.image-preview {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #667eea;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsive design - mobile view */
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 30px 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .radio-group {
+    gap: 15px;
+  }
+
+  .radio-label {
+    font-size: 14px;
+  }
+}

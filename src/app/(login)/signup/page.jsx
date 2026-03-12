@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import styles from "./signup.module.css";
 
 export default function Signup() {
@@ -49,10 +50,12 @@ export default function Signup() {
             className={styles.input}
             required
           />
-
+          <Link href="/signup/createprofile">
           <button className={styles.signupBtn}>
             Sign Up
           </button>
+          </Link>
+          
 
         </form>
 
