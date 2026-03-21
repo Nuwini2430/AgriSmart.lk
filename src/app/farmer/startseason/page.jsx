@@ -6,371 +6,366 @@ import Image from "next/image";
 
 export default function StartSeason() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [landAcres, setLandAcres] = useState("");
-  const [selectedCrops, setSelectedCrops] = useState([]);
-  const [seasonName, setSeasonName] = useState("");
-  const [startDate, setStartDate] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [selectedCrop, setSelectedCrop] = useState(null);
+  const [acresToRegister, setAcresToRegister] = useState("");
   const [availableCrops, setAvailableCrops] = useState([]);
-  const [filteredCrops, setFilteredCrops] = useState([]);
+  const [farmer, setFarmer] = useState(null);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const userProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
+    
     if (!isLoggedIn) {
       router.push("/signin");
       return;
     }
 
-    // Mock available crops data (from admin)
-    setAvailableCrops([
-      { id: 1, name: "Rice", totalRequired: 500000, yieldPerAcre: 1000, price: 150, remainingAcres: 175, season: "Maha", image: "🌾" },
-      { id: 2, name: "Chili", totalRequired: 100000, yieldPerAcre: 800, price: 300, remainingAcres: 40, season: "Yala", image: "🌶️" },
-      { id: 3, name: "Brinjal", totalRequired: 75000, yieldPerAcre: 1200, price: 120, remainingAcres: 17.5, season: "Maha", image: "🍆" },
-      { id: 4, name: "Maize", totalRequired: 200000, yieldPerAcre: 1500, price: 90, remainingAcres: 0, season: "Yala", image: "🌽" },
-      { id: 5, name: "Potato", totalRequired: 150000, yieldPerAcre: 2000, price: 180, remainingAcres: 25, season: "Maha", image: "🥔" }
-    ]);
+    setFarmer({
+      name: userProfile.fullName || "John Doe",
+      nic: userProfile.nicNumber || "821234567V",
+      phone: localStorage.getItem("userPhone") || "0712345678"
+    });
 
-    // Set default start date to today
-    const today = new Date().toISOString().split('T')[0];
-    setStartDate(today);
+    // Load crops from admin
+    const allCrops = JSON.parse(localStorage.getItem("crops") || "[]");
+    
+    // Filter active crops with remaining acres
+    const activeCrops = allCrops.filter(crop => 
+      crop.hasActiveSeason === true && 
+      crop.seasonDetails && 
+      crop.seasonDetails.remainingAcres > 0
+    );
+    
+    const formattedCrops = activeCrops.map(crop => ({
+      id: crop.id,
+      name: crop.name,
+      image: crop.image,
+      seasonName: crop.seasonName,
+      yieldPerAcre: crop.seasonDetails.yieldPerAcre,
+      price: crop.seasonDetails.price,
+      totalAcresNeeded: crop.seasonDetails.totalAcresNeeded,
+      registeredAcres: crop.seasonDetails.registeredAcres,
+      remainingAcres: crop.seasonDetails.remainingAcres,
+      startDate: crop.seasonDetails.startDate,
+      endDate: crop.seasonDetails.endDate
+    }));
+    
+    setAvailableCrops(formattedCrops);
+    setLoading(false);
   }, [router]);
 
-  // Update filtered crops when land acres changes
-  useEffect(() => {
-    if (landAcres && parseFloat(landAcres) > 0) {
-      const acres = parseFloat(landAcres);
-      const filtered = availableCrops.filter(crop => 
-        crop.remainingAcres >= acres && crop.remainingAcres > 0
-      );
-      setFilteredCrops(filtered);
-    } else {
-      setFilteredCrops([]);
-    }
-    setSelectedCrops([]); // Reset selections when land changes
-  }, [landAcres, availableCrops]);
-
-  const handleCropSelection = (cropId) => {
-    setSelectedCrops(prev => {
-      if (prev.includes(cropId)) {
-        return prev.filter(id => id !== cropId);
-      } else {
-        return [...prev, cropId];
-      }
-    });
+  const getCropImage = (cropName) => {
+    const images = {
+      "Rice": "🌾",
+      "Chili": "🌶️",
+      "Brinjal": "🍆",
+      "Maize": "🌽",
+      "Potato": "🥔",
+      "Onion": "🧅",
+      "Cabbage": "🥬",
+      "Carrot": "🥕"
+    };
+    return images[cropName] || "🌾";
   };
 
-  const calculateExpectedYield = () => {
-    return selectedCrops.reduce((total, cropId) => {
-      const crop = availableCrops.find(c => c.id === cropId);
-      return total + ((parseFloat(landAcres) || 0) * crop.yieldPerAcre);
-    }, 0);
-  };
-
-  const calculateTotalValue = () => {
-    return selectedCrops.reduce((total, cropId) => {
-      const crop = availableCrops.find(c => c.id === cropId);
-      return total + ((parseFloat(landAcres) || 0) * crop.yieldPerAcre * crop.price);
-    }, 0);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validation
-    if (!seasonName.trim()) {
-      alert("Please enter a season name");
+  const handleRegister = () => {
+    if (!selectedCrop) {
+      setMessage({ type: "error", text: "Please select a crop" });
       return;
     }
-
-    if (!landAcres || parseFloat(landAcres) <= 0) {
-      alert("Please enter valid land acres");
+    
+    if (!acresToRegister || parseFloat(acresToRegister) <= 0) {
+      setMessage({ type: "error", text: "Please enter valid acres" });
       return;
     }
-
-    if (selectedCrops.length === 0) {
-      alert("Please select at least one crop");
-      return;
-    }
-
-    setLoading(true);
-
-    // Mock API call - Replace with actual backend
-    setTimeout(() => {
-      // Create new season object
-      const newSeason = {
-        id: Date.now(),
-        name: seasonName,
-        landAcres: parseFloat(landAcres),
-        crops: selectedCrops.map(id => {
-          const crop = availableCrops.find(c => c.id === id);
-          return {
-            id: crop.id,
-            name: crop.name,
-            image: crop.image,
-            yieldPerAcre: crop.yieldPerAcre,
-            price: crop.price,
-            expectedYield: parseFloat(landAcres) * crop.yieldPerAcre,
-            expectedIncome: parseFloat(landAcres) * crop.yieldPerAcre * crop.price
-          };
-        }),
-        startDate: startDate,
-        expectedHarvest: calculateExpectedYield(),
-        expectedIncome: calculateTotalValue(),
-        status: "active",
-        progress: 0,
-        image: selectedCrops.length > 0 ? availableCrops.find(c => c.id === selectedCrops[0]).image : "🌾"
-      };
-
-      // Save to localStorage (temporary)
-      const existingSeasons = JSON.parse(localStorage.getItem("activeSeasons") || "[]");
-      localStorage.setItem("activeSeasons", JSON.stringify([...existingSeasons, newSeason]));
-
-      // Update remaining acres in available crops (mock)
-      const updatedCrops = availableCrops.map(crop => {
-        if (selectedCrops.includes(crop.id)) {
-          return {
-            ...crop,
-            remainingAcres: crop.remainingAcres - parseFloat(landAcres)
-          };
-        }
-        return crop;
+    
+    const acresNum = parseFloat(acresToRegister);
+    const crop = availableCrops.find(c => c.id === selectedCrop);
+    
+    if (acresNum > crop.remainingAcres) {
+      setMessage({ 
+        type: "error", 
+        text: `Only ${crop.remainingAcres} acres remaining for ${crop.name}` 
       });
-      localStorage.setItem("availableCrops", JSON.stringify(updatedCrops));
-
-      // Show success message
-      alert("Season started successfully!");
+      return;
+    }
+    
+    // Update crops in localStorage (admin side)
+    const allCrops = JSON.parse(localStorage.getItem("crops") || "[]");
+    const updatedCrops = allCrops.map(c => {
+      if (c.id === selectedCrop && c.hasActiveSeason) {
+        const newRegisteredAcres = c.seasonDetails.registeredAcres + acresNum;
+        const newRemainingAcres = c.seasonDetails.remainingAcres - acresNum;
+        
+        return {
+          ...c,
+          seasonDetails: {
+            ...c.seasonDetails,
+            registeredAcres: newRegisteredAcres,
+            remainingAcres: newRemainingAcres,
+            progress: (newRegisteredAcres / c.seasonDetails.totalAcresNeeded) * 100,
+            registeredFarmers: [
+              ...c.seasonDetails.registeredFarmers,
+              {
+                id: Date.now(),
+                name: farmer.name,
+                nic: farmer.nic,
+                phone: farmer.phone,
+                acres: acresNum,
+                date: new Date().toISOString().split('T')[0]
+              }
+            ]
+          }
+        };
+      }
+      return c;
+    });
+    
+    localStorage.setItem("crops", JSON.stringify(updatedCrops));
+    
+    // Save to farmerSeasons
+    const farmerSeasons = JSON.parse(localStorage.getItem("farmerSeasons") || "[]");
+    
+    const newSeason = {
+      id: Date.now(),
+      cropId: selectedCrop,
+      cropName: crop.name,
+      cropImage: getCropImage(crop.name),
+      seasonName: crop.seasonName,
+      acres: acresNum,
+      yieldPerAcre: crop.yieldPerAcre,
+      price: crop.price,
+      startDate: crop.startDate,
+      endDate: crop.endDate,
+      registeredDate: new Date().toISOString().split('T')[0],
+      expectedYield: acresNum * crop.yieldPerAcre,
+      expectedIncome: acresNum * crop.yieldPerAcre * crop.price,
+      status: "active",
+      progress: 0
+    };
+    
+    farmerSeasons.push(newSeason);
+    localStorage.setItem("farmerSeasons", JSON.stringify(farmerSeasons));
+    
+    setMessage({ 
+      type: "success", 
+      text: `Successfully registered for ${crop.name}! ${acresNum} acres approved.` 
+    });
+    setShowSuccess(true);
+    
+    // Reset form
+    setSelectedCrop(null);
+    setAcresToRegister("");
+    
+    // Refresh available crops
+    setTimeout(() => {
+      const updatedCropsList = JSON.parse(localStorage.getItem("crops") || "[]");
+      const stillAvailable = updatedCropsList.filter(c => 
+        c.hasActiveSeason && c.seasonDetails?.remainingAcres > 0
+      );
+      setAvailableCrops(stillAvailable);
+      setMessage({ type: "", text: "" });
+      setShowSuccess(false);
       
-      // Redirect to farmer dashboard
-      router.push("/farmer");
-      setLoading(false);
-    }, 1500);
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        router.push("/farmer");
+      }, 1500);
+    }, 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center animate-fade-up">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading available crops...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-modern sticky top-0 z-50">
+    <div className="min-h-screen bg-background">
+      <header className="navbar-modern sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            <Link href="/farmer" className="flex items-center gap-2">
+            <Link href="/farmer" className="flex items-center gap-2 group">
               <Image 
                 src="/images/logo2.jpg" 
-                alt="AgriSmart" 
+                alt="AgriSmart Logo" 
                 width={40} 
                 height={40}
-                className="rounded-lg"
+                className="rounded-lg group-hover:scale-105 transition-transform"
               />
-              <span className="font-bold text-secondary">AgriSmart</span>
+              <span className="font-bold text-xl text-gray-900 hidden sm:block">AgriSmart</span>
             </Link>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.back()}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
-            </div>
+            <button onClick={() => router.back()} className="px-4 py-2 text-gray-600 hover:text-gray-800">
+              Cancel
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          {/* Page Title */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-secondary">Start a New Season</h1>
-            <p className="text-gray-500">Enter your land details to see available crops</p>
+            <h1 className="text-2xl font-bold text-secondary">Register for a Crop Season</h1>
+            <p className="text-gray-500">Select a crop and enter the acres you want to cultivate</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-modern p-6 space-y-6">
-            {/* Season Name */}
-            <div>
-              <label className="block text-secondary font-medium mb-2">
-                Season Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={seasonName}
-                onChange={(e) => setSeasonName(e.target.value)}
-                placeholder="e.g., Maha 2024, Yala 2024"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                required
-              />
+          {availableCrops.length === 0 ? (
+            <div className="card-modern text-center py-12">
+              <div className="text-6xl mb-4">🌾</div>
+              <p className="text-gray-500 mb-2">No active crop seasons available</p>
+              <p className="text-sm text-gray-400">Please check back later when admin starts new seasons</p>
             </div>
-
-            {/* Start Date */}
-            <div>
-              <label className="block text-secondary font-medium mb-2">
-                Start Date <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                required
-              />
-            </div>
-
-            {/* Land Acres */}
-            <div>
-              <label className="block text-secondary font-medium mb-2">
-                Your Available Land (Acres) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                min="0.1"
-                value={landAcres}
-                onChange={(e) => setLandAcres(e.target.value)}
-                placeholder="e.g., 2.5"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                required
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Enter your land acres to see which crops you can cultivate
-              </p>
-            </div>
-
-            {/* Available Crops - Only show if land entered */}
-            {landAcres && parseFloat(landAcres) > 0 && (
-              <div>
-                <label className="block text-secondary font-medium mb-3">
-                  Crops Available for {landAcres} Acres
-                </label>
-                
-                {filteredCrops.length > 0 ? (
-                  <div className="space-y-3">
-                    {filteredCrops.map((crop) => (
-                      <div 
-                        key={crop.id} 
-                        onClick={() => handleCropSelection(crop.id)}
-                        className={`p-4 border rounded-lg transition-all cursor-pointer ${
-                          selectedCrops.includes(crop.id)
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 hover:border-primary'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {/* Custom Checkbox */}
-                            <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                              selectedCrops.includes(crop.id) 
-                                ? 'bg-primary border-primary' 
-                                : 'border-gray-300'
-                            }`}>
-                              {selectedCrops.includes(crop.id) && (
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </div>
-                            
-                            {/* Crop Info */}
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-2xl">{crop.image}</span>
-                                <h4 className="font-semibold text-secondary">{crop.name}</h4>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                Season: {crop.season} • {crop.yieldPerAcre} kg/acre • LKR {crop.price}/kg
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {/* Expected Output for this land */}
-                          <div className="text-right">
-                            <p className="text-sm font-medium text-primary">
-                              LKR {(parseFloat(landAcres) * crop.yieldPerAcre * crop.price).toLocaleString()}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {(parseFloat(landAcres) * crop.yieldPerAcre).toFixed(0)} kg expected
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Progress bar for remaining acres */}
-                        <div className="mt-2">
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-gray-500">Available Acres</span>
-                            <span className="text-secondary">{crop.remainingAcres} acres left</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div 
-                              className="bg-primary h-1.5 rounded-full"
-                              style={{ width: `${(crop.remainingAcres / 200) * 100}%` }}
-                            ></div>
-                          </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Available Crops */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold text-secondary">Available Crops</h2>
+                {availableCrops.map((crop) => (
+                  <div 
+                    key={crop.id}
+                    onClick={() => setSelectedCrop(crop.id)}
+                    className={`p-4 border rounded-xl cursor-pointer transition-all ${
+                      selectedCrop === crop.id
+                        ? "border-primary bg-primary/5 shadow-modern"
+                        : "border-gray-200 hover:border-primary"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{crop.image}</span>
+                        <div>
+                          <h3 className="font-semibold text-secondary">{crop.name}</h3>
+                          <p className="text-sm text-gray-500">{crop.seasonName}</p>
                         </div>
                       </div>
-                    ))}
+                      <div className="text-right">
+                        <p className="font-medium text-primary">LKR {crop.price}/kg</p>
+                        <p className="text-xs text-gray-500">{crop.yieldPerAcre} kg/acre</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-500">Registration Progress</span>
+                        <span className="text-secondary font-medium">
+                          {((crop.registeredAcres / crop.totalAcresNeeded) * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="progress-modern">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${(crop.registeredAcres / crop.totalAcresNeeded) * 100}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {crop.remainingAcres} acres remaining out of {crop.totalAcresNeeded}
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                    <p className="text-yellow-700">
-                      No crops available for {landAcres} acres at the moment.
-                    </p>
-                    <p className="text-sm text-yellow-600 mt-1">
-                      Try a smaller land area or check back later.
-                    </p>
-                  </div>
-                )}
+                ))}
               </div>
-            )}
 
-            {/* Summary - Show when crops selected */}
-            {selectedCrops.length > 0 && (
-              <div className="bg-primary/5 p-4 rounded-lg">
-                <h3 className="font-medium text-secondary mb-2">Season Summary</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Total Land:</span>
-                    <span className="font-medium text-secondary">{landAcres} acres</span>
+              {/* Registration Form */}
+              {selectedCrop && (
+                <div className="card-modern">
+                  <h3 className="text-lg font-semibold text-secondary mb-4">
+                    Register for {availableCrops.find(c => c.id === selectedCrop)?.name}
+                  </h3>
+                  
+                  <div className="mb-4">
+                    <label className="block text-secondary font-medium mb-2">
+                      Acres to Cultivate <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0.1"
+                      value={acresToRegister}
+                      onChange={(e) => setAcresToRegister(e.target.value)}
+                      placeholder={`Max: ${availableCrops.find(c => c.id === selectedCrop)?.remainingAcres} acres`}
+                      className="input-modern"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Max available: {availableCrops.find(c => c.id === selectedCrop)?.remainingAcres} acres
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Selected Crops:</span>
-                    <span className="font-medium text-secondary">{selectedCrops.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Expected Total Yield:</span>
-                    <span className="font-medium text-primary">{calculateExpectedYield().toFixed(0)} kg</span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-primary/20">
-                    <span className="text-gray-500">Expected Income:</span>
-                    <span className="font-bold text-primary">LKR {calculateTotalValue().toLocaleString()}</span>
-                  </div>
+
+                  {/* Summary */}
+                  {acresToRegister && parseFloat(acresToRegister) > 0 && (
+                    <div className="bg-primary/5 p-4 rounded-xl mb-4">
+                      <h4 className="font-medium text-secondary mb-2">Registration Summary</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Crop:</span>
+                          <span className="text-secondary">{availableCrops.find(c => c.id === selectedCrop)?.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Acres:</span>
+                          <span className="text-secondary">{acresToRegister} acres</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Expected Yield:</span>
+                          <span className="text-secondary">
+                            {(parseFloat(acresToRegister) * availableCrops.find(c => c.id === selectedCrop)?.yieldPerAcre).toFixed(0)} kg
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-primary/20">
+                          <span className="text-gray-500">Expected Income:</span>
+                          <span className="font-bold text-primary">
+                            LKR {(parseFloat(acresToRegister) * availableCrops.find(c => c.id === selectedCrop)?.yieldPerAcre * availableCrops.find(c => c.id === selectedCrop)?.price).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {message.text && (
+                    <div className={`p-3 rounded-lg mb-4 ${
+                      message.type === "success" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+                    }`}>
+                      {message.text}
+                    </div>
+                  )}
+
+                  {showSuccess && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                      <p className="text-green-600 text-center">
+                        ✓ Registration successful! Redirecting to dashboard...
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleRegister}
+                    disabled={showSuccess}
+                    className="btn-primary-modern w-full disabled:opacity-50"
+                  >
+                    Confirm Registration
+                  </button>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Form Buttons */}
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                disabled={loading || selectedCrops.length === 0}
-                className="flex-1 bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors shadow-modern disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Starting Season...
-                  </span>
-                ) : "Start Season"}
-              </button>
-              <Link
-                href="/farmer"
-                className="flex-1 border border-gray-300 text-gray-600 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-center"
-              >
-                Cancel
-              </Link>
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-blue-800 mb-1">ℹ️ How it works</h4>
+                <p className="text-xs text-blue-600">
+                  • Crops are available only when admin starts a new season<br />
+                  • You can register only for available remaining acres<br />
+                  • Registration is auto-approved if acres are available<br />
+                  • Once total required acres are filled, registration closes<br />
+                  • This ensures fair prices and prevents overproduction
+                </p>
+              </div>
             </div>
-          </form>
+          )}
         </div>
       </main>
     </div>

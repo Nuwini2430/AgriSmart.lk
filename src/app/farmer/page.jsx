@@ -11,10 +11,9 @@ export default function FarmerDashboard() {
   const [user, setUser] = useState(null);
   const [activeSeasons, setActiveSeasons] = useState([]);
   const [pastSeasons, setPastSeasons] = useState([]);
-  const [showProfileMenu, setShowProfileMenu] = useState(false); // මෙය add කරන්න
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const userProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
     
@@ -23,7 +22,6 @@ export default function FarmerDashboard() {
       return;
     }
 
-    // Mock user data
     setUser({
       name: userProfile.fullName || "John Doe",
       phone: localStorage.getItem("userPhone") || "0712345678",
@@ -31,74 +29,99 @@ export default function FarmerDashboard() {
       memberSince: "2024"
     });
 
-    // Load active seasons from localStorage
-    const savedActiveSeasons = JSON.parse(localStorage.getItem("activeSeasons") || "[]");
-    const savedPastSeasons = JSON.parse(localStorage.getItem("pastSeasons") || "[]");
+    // ========== LOAD ACTIVE SEASONS FROM FARMER SEASONS ==========
+    const farmerSeasons = JSON.parse(localStorage.getItem("farmerSeasons") || "[]");
     
-    if (savedActiveSeasons.length > 0) {
-      setActiveSeasons(savedActiveSeasons);
+    if (farmerSeasons.length > 0) {
+      // Get active seasons
+      const active = farmerSeasons.filter(s => s.status === "active");
+      const formattedActive = active.map(season => ({
+        id: season.id,
+        name: season.seasonName,
+        crops: [{
+          name: season.cropName,
+          image: season.cropImage || getCropImage(season.cropName),
+          yieldPerAcre: season.yieldPerAcre,
+          price: season.price,
+          acres: season.acres
+        }],
+        landAcres: season.acres,
+        startDate: season.startDate,
+        expectedHarvest: season.endDate,
+        progress: season.progress || 0,
+        status: "active",
+        image: season.cropImage || getCropImage(season.cropName)
+      }));
+      setActiveSeasons(formattedActive);
+      
+      // Get past seasons (completed)
+      const completed = farmerSeasons.filter(s => s.status === "completed");
+      const formattedPast = completed.map(season => ({
+        id: season.id,
+        name: season.seasonName,
+        crops: [{
+          name: season.cropName,
+          image: season.cropImage || getCropImage(season.cropName)
+        }],
+        landAcres: season.acres,
+        startDate: season.startDate,
+        endDate: season.endDate,
+        harvest: season.actualHarvest || season.expectedYield,
+        income: season.income || season.expectedIncome,
+        status: "completed",
+        image: season.cropImage || getCropImage(season.cropName)
+      }));
+      setPastSeasons(formattedPast);
     } else {
-      // Mock active seasons
+      // Mock data for demo when no seasons exist
       setActiveSeasons([
         { 
           id: 1, 
           name: "Maha 2024", 
-          crops: [{ name: "Rice", image: "🌾", yieldPerAcre: 1000, price: 150 }],
+          crops: [{ name: "Rice", image: "🌾", yieldPerAcre: 1000, price: 150, acres: 2.5 }],
           landAcres: 2.5, 
           startDate: "2024-01-15", 
           expectedHarvest: "2024-04-15",
-          progress: 65,
-          status: "active",
+          progress: 65, 
+          status: "active", 
           image: "🌾"
-        },
-        { 
-          id: 2, 
-          name: "Yala 2024", 
-          crops: [{ name: "Chili", image: "🌶️", yieldPerAcre: 800, price: 300 }],
-          landAcres: 1.5, 
-          startDate: "2024-02-01", 
-          expectedHarvest: "2024-05-01",
-          progress: 40,
-          status: "active",
-          image: "🌶️"
         }
       ]);
-    }
-
-    if (savedPastSeasons.length > 0) {
-      setPastSeasons(savedPastSeasons);
-    } else {
-      // Mock past seasons
+      
       setPastSeasons([
         { 
-          id: 3, 
+          id: 2, 
           name: "Maha 2023", 
           crops: [{ name: "Rice", image: "🌾" }],
           landAcres: 2.0, 
           startDate: "2023-01-10", 
           endDate: "2023-04-20",
-          harvest: 2000,
-          income: 300000,
-          status: "completed",
+          harvest: 2000, 
+          income: 300000, 
+          status: "completed", 
           image: "🌾"
-        },
-        { 
-          id: 4, 
-          name: "Yala 2023", 
-          crops: [{ name: "Brinjal", image: "🍆" }],
-          landAcres: 1.0, 
-          startDate: "2023-05-15", 
-          endDate: "2023-08-25",
-          harvest: 1200,
-          income: 144000,
-          status: "completed",
-          image: "🍆"
         }
       ]);
     }
 
     setLoading(false);
   }, [router]);
+
+  const getCropImage = (cropName) => {
+    const images = {
+      "Rice": "🌾",
+      "Chili": "🌶️",
+      "Brinjal": "🍆",
+      "Maize": "🌽",
+      "Potato": "🥔",
+      "Onion": "🧅",
+      "Cabbage": "🥬",
+      "Carrot": "🥕",
+      "Tomato": "🍅",
+      "Cucumber": "🥒"
+    };
+    return images[cropName] || "🌾";
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -109,39 +132,40 @@ export default function FarmerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center animate-fade-up">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading your dashboard...</p>
+          <p className="text-gray-500">Loading your farm...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-modern sticky top-0 z-50">
+      <header className="navbar-modern sticky top-0 z-50">
         <div className="container mx-auto px-4">
-          {/* Top Row - Logo and Profile */}
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/farmer" className="flex items-center gap-2">
+            <Link href="/farmer" className="flex items-center gap-2 group">
               <Image 
                 src="/images/logo2.jpg" 
-                alt="AgriSmart" 
+                alt="AgriSmart Logo" 
                 width={40} 
                 height={40}
-                className="rounded-lg"
+                className="rounded-lg group-hover:scale-105 transition-transform"
               />
-              <span className="font-bold text-secondary hidden sm:block">AgriSmart</span>
+              <span className="font-bold text-xl text-gray-900 hidden sm:block">
+                AgriSmart
+              </span>
             </Link>
 
             {/* Profile */}
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2 focus:outline-none"
+                className="flex items-center gap-2 focus:outline-none group"
               >
                 {user?.profilePic ? (
                   <img 
@@ -150,27 +174,26 @@ export default function FarmerDashboard() {
                     className="w-8 h-8 rounded-full object-cover border-2 border-primary"
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center border-2 border-primary">
+                  <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center shadow-modern group-hover:scale-105 transition-transform">
                     <span className="text-white text-sm font-bold">
                       {user?.name?.charAt(0) || "F"}
                     </span>
                   </div>
                 )}
-                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
-              {/* Profile Dropdown */}
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-modern-lg py-2 z-50">
-                  <Link href="/farmer/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-modern-lg py-2 z-50 animate-scale-in">
+                  <Link href="/farmer/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary transition-colors">
                     My Profile
                   </Link>
                   <hr className="my-2" />
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
                     Sign Out
                   </button>
@@ -179,45 +202,39 @@ export default function FarmerDashboard() {
             </div>
           </div>
 
-          {/* Bottom Row - Navigation Tabs */}
-          <div className="flex justify-center pb-2 overflow-x-auto">
-            <div className="flex gap-2 md:gap-4">
-              <button
-                onClick={() => setActiveTab("dashboard")}
-                className={`py-2 px-3 font-medium text-sm rounded-lg transition-colors whitespace-nowrap ${
-                  activeTab === "dashboard"
-                    ? "bg-primary text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <span className="mr-2">📊</span>
-                <span className="hidden sm:inline">Dashboard</span>
-              </button>
-              
-              <Link
-                href="/farmer/startseason"
-                className={`py-2 px-3 font-medium text-sm rounded-lg transition-colors whitespace-nowrap ${
-                  activeTab === "add-season"
-                    ? "bg-primary text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <span className="mr-2">➕</span>
-                <span className="hidden sm:inline">Add Season</span>
-              </Link>
-              
-              <button
-                onClick={() => setActiveTab("history")}
-                className={`py-2 px-3 font-medium text-sm rounded-lg transition-colors whitespace-nowrap ${
-                  activeTab === "history"
-                    ? "bg-primary text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <span className="mr-2">📜</span>
-                <span className="hidden sm:inline">History</span>
-              </button>
-            </div>
+          {/* Navigation Tabs */}
+          <div className="flex justify-center gap-2 pb-2 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
+                activeTab === "dashboard"
+                  ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-modern"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <span className="mr-2">📊</span>
+              Dashboard
+            </button>
+            
+            <Link
+              href="/farmer/startseason"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 text-gray-600 hover:bg-gray-100"
+            >
+              <span className="mr-2">➕</span>
+              Add Season
+            </Link>
+            
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
+                activeTab === "history"
+                  ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-modern"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <span className="mr-2">📜</span>
+              History
+            </button>
           </div>
         </div>
       </header>
@@ -227,54 +244,49 @@ export default function FarmerDashboard() {
         {/* Dashboard Tab - Active Seasons */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-secondary">Active Seasons</h2>
+            <h2 className="text-2xl font-bold text-secondary flex items-center gap-2 animate-fade-up">
+              <span className="text-3xl">🌱</span> Active Seasons
+            </h2>
             
             {activeSeasons.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {activeSeasons.map((season) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activeSeasons.map((season, index) => (
                   <Link key={season.id} href={`/farmer/season/${season.id}`}>
-                    <div className="bg-white rounded-xl shadow-modern p-6 hover:shadow-modern-lg transition-all cursor-pointer">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-3xl">{season.image || season.crops[0]?.image || "🌾"}</span>
+                    <div 
+                      className="card-modern cursor-pointer animate-fade-up hover:shadow-modern-lg transition-all duration-300" 
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-2xl">
+                            {season.image}
+                          </div>
                           <div>
-                            <h3 className="font-semibold text-secondary">{season.name}</h3>
-                            <p className="text-sm text-gray-500">
-                              {season.crops?.map(c => c.name).join(", ") || "Multiple crops"}
-                            </p>
+                            <h3 className="font-bold text-lg text-secondary">{season.name}</h3>
+                            <p className="text-sm text-gray-500">{season.crops[0]?.name}</p>
                           </div>
                         </div>
-                        <span className="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">
-                          Active
-                        </span>
+                        <span className="badge-modern badge-active">Active</span>
                       </div>
 
-                      <div className="space-y-2 text-sm mb-3">
+                      <div className="space-y-3 text-sm mb-4">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Land:</span>
-                          <span className="font-medium text-secondary">{season.landAcres} acres</span>
+                          <span className="text-gray-500">Land</span>
+                          <span className="font-semibold text-secondary">{season.landAcres} acres</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Started:</span>
-                          <span className="font-medium text-secondary">{season.startDate}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Expected Harvest:</span>
-                          <span className="font-medium text-secondary">{season.expectedHarvest || "N/A"}</span>
+                          <span className="text-gray-500">Started</span>
+                          <span className="font-semibold text-secondary">{season.startDate}</span>
                         </div>
                       </div>
 
-                      {/* Progress Bar */}
                       <div>
-                        <div className="flex justify-between text-xs mb-1">
+                        <div className="flex justify-between text-xs mb-2">
                           <span className="text-gray-500">Progress</span>
-                          <span className="text-secondary font-medium">{season.progress || 0}%</span>
+                          <span className="font-semibold text-primary">{season.progress}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: `${season.progress || 0}%` }}
-                          ></div>
+                        <div className="progress-modern">
+                          <div className="progress-fill" style={{ width: `${season.progress}%` }}></div>
                         </div>
                       </div>
                     </div>
@@ -282,12 +294,10 @@ export default function FarmerDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-modern p-12 text-center">
+              <div className="card-modern text-center py-12 animate-fade-up">
+                <div className="text-6xl mb-4">🌾</div>
                 <p className="text-gray-500 mb-4">No active seasons</p>
-                <Link
-                  href="/farmer/startseason"
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors inline-block"
-                >
+                <Link href="/farmer/startseason" className="btn-primary-modern inline-block">
                   Start a New Season
                 </Link>
               </div>
@@ -298,41 +308,46 @@ export default function FarmerDashboard() {
         {/* History Tab - Past Seasons */}
         {activeTab === "history" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-secondary">Past Seasons</h2>
+            <h2 className="text-2xl font-bold text-secondary flex items-center gap-2 animate-fade-up">
+              <span className="text-3xl">📜</span> Past Seasons
+            </h2>
             
             {pastSeasons.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pastSeasons.map((season) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pastSeasons.map((season, index) => (
                   <Link key={season.id} href={`/farmer/season/${season.id}`}>
-                    <div className="bg-white rounded-xl shadow-modern p-6 hover:shadow-modern-lg transition-all cursor-pointer">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-3xl">{season.image}</span>
+                    <div 
+                      className="card-modern cursor-pointer animate-fade-up" 
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">
+                            {season.image}
+                          </div>
                           <div>
-                            <h3 className="font-semibold text-secondary">{season.name}</h3>
+                            <h3 className="font-bold text-lg text-secondary">{season.name}</h3>
                             <p className="text-sm text-gray-500">{season.crops[0]?.name}</p>
                           </div>
                         </div>
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          Completed
-                        </span>
+                        <span className="badge-modern badge-completed">Completed</span>
                       </div>
 
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Land:</span>
-                          <span className="font-medium text-secondary">{season.landAcres} acres</span>
+                          <span className="text-gray-500">Land</span>
+                          <span className="font-semibold text-secondary">{season.landAcres} acres</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Period:</span>
-                          <span className="font-medium text-secondary">{season.startDate} to {season.endDate}</span>
+                          <span className="text-gray-500">Period</span>
+                          <span className="font-semibold text-secondary">{season.startDate} → {season.endDate}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Harvest:</span>
-                          <span className="font-medium text-secondary">{season.harvest} kg</span>
+                          <span className="text-gray-500">Harvest</span>
+                          <span className="font-semibold text-secondary">{season.harvest} kg</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t border-gray-100">
-                          <span className="text-gray-500">Income:</span>
+                          <span className="text-gray-500">Income</span>
                           <span className="font-bold text-primary">LKR {season.income?.toLocaleString()}</span>
                         </div>
                       </div>
@@ -341,7 +356,8 @@ export default function FarmerDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-modern p-12 text-center">
+              <div className="card-modern text-center py-12 animate-fade-up">
+                <div className="text-6xl mb-4">📭</div>
                 <p className="text-gray-500">No past seasons found</p>
               </div>
             )}

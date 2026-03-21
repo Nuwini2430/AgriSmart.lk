@@ -13,7 +13,6 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Phone number validation (Sri Lanka)
   const validatePhoneNumber = (phone) => {
     const sriLankaPhoneRegex = /^(?:0|94|\+94)?(7[0-9]{8})$/;
     return sriLankaPhoneRegex.test(phone);
@@ -24,7 +23,6 @@ export default function SignIn() {
     setError("");
     setLoading(true);
 
-    // Validation
     if (!validatePhoneNumber(formData.phoneNumber)) {
       setError("Please enter a valid Sri Lankan phone number");
       setLoading(false);
@@ -37,13 +35,10 @@ export default function SignIn() {
       return;
     }
 
-    // Mock login - Replace with actual API call
+    // Mock login
     setTimeout(() => {
-      // Mock successful login
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userPhone", formData.phoneNumber);
-      
-      // Redirect to farmer dashboard (temporary)
       router.push("/farmer");
       setLoading(false);
     }, 1500);
@@ -51,17 +46,14 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      {/* Background Decoration */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="w-full max-w-md">
-        {/* Logo and Title */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            {/* Logo Image - .jpg file */}
             <div className="flex justify-center mb-4">
               <Image 
                 src="/images/logo2.jpg" 
@@ -77,10 +69,8 @@ export default function SignIn() {
           <p className="text-gray-500 mt-1">Sign in to your AgriSmart account</p>
         </div>
 
-        {/* Sign In Form */}
         <div className="bg-white rounded-xl shadow-modern-lg p-8">
           <form onSubmit={handleSubmit}>
-            {/* Phone Number Input */}
             <div className="mb-4">
               <label className="block text-secondary font-medium mb-2">
                 Phone Number
@@ -96,7 +86,6 @@ export default function SignIn() {
               <p className="text-xs text-gray-400 mt-1">Example: 0712345678</p>
             </div>
 
-            {/* Password Input */}
             <div className="mb-6">
               <label className="block text-secondary font-medium mb-2">
                 Password
@@ -111,14 +100,12 @@ export default function SignIn() {
               />
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
                 ⚠️ {error}
               </div>
             )}
 
-            {/* Forgot Password Link */}
             <div className="text-right mb-6">
               <button 
                 type="button"
@@ -128,7 +115,6 @@ export default function SignIn() {
               </button>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -146,7 +132,6 @@ export default function SignIn() {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
@@ -156,7 +141,6 @@ export default function SignIn() {
             </div>
           </div>
 
-          {/* Social Login Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <button className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -175,7 +159,6 @@ export default function SignIn() {
             </button>
           </div>
 
-          {/* Sign Up Link */}
           <p className="text-center mt-8 text-gray-600">
             Don't have an account?{" "}
             <Link href="/signup" className="text-primary font-medium hover:text-primary-dark transition-colors">

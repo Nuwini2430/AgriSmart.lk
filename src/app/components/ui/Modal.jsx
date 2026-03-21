@@ -9,7 +9,6 @@ export default function Modal({
   size = "md",
   showCloseButton = true 
 }) {
-  // Close on escape key
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
@@ -38,15 +37,12 @@ export default function Modal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal Container */}
       <div className="flex min-h-full items-center justify-center p-4">
-        {/* Modal Content */}
         <div 
           className={`
             relative 
@@ -57,10 +53,9 @@ export default function Modal({
             shadow-modern-lg 
             transform 
             transition-all
-            animate-slide-in
+            animate-scale-in
           `}
         >
-          {/* Header */}
           {(title || showCloseButton) && (
             <div className="flex items-center justify-between p-6 border-b border-[#F1F5F9]">
               {title && (
@@ -82,7 +77,6 @@ export default function Modal({
             </div>
           )}
 
-          {/* Body */}
           <div className="p-6">
             {children}
           </div>
@@ -92,7 +86,6 @@ export default function Modal({
   );
 }
 
-// Confirmation Modal
 export function ConfirmModal({ 
   isOpen, 
   onClose, 
@@ -106,7 +99,6 @@ export function ConfirmModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <div className="text-center">
-        {/* Icon */}
         <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center
           ${variant === 'danger' ? 'bg-[#FEE2E2]' : 'bg-[#E8F5E9]'}`}>
           {variant === 'danger' ? (

@@ -16,15 +16,14 @@ export default function SeasonDetails() {
   });
 
   useEffect(() => {
-    // Get season ID from URL
     const seasonId = parseInt(params.id);
     
-    // Load seasons from localStorage
-    const activeSeasons = JSON.parse(localStorage.getItem("activeSeasons") || "[]");
-    const pastSeasons = JSON.parse(localStorage.getItem("pastSeasons") || "[]");
+    // Load active seasons from localStorage
+    const farmerSeasons = JSON.parse(localStorage.getItem("farmerSeasons") || "[]");
+    const pastSeasons = JSON.parse(localStorage.getItem("farmerPastSeasons") || "[]");
     
-    // Find season in active seasons first, then in past seasons
-    let foundSeason = activeSeasons.find(s => s.id === seasonId);
+    // Find in active seasons first
+    let foundSeason = farmerSeasons.find(s => s.id === seasonId && s.status === "active");
     let isActive = true;
     
     if (!foundSeason) {
@@ -33,28 +32,67 @@ export default function SeasonDetails() {
     }
     
     if (foundSeason) {
-      setSeason({ ...foundSeason, isActive });
+      // Format the season data for display
+      setSeason({
+        id: foundSeason.id,
+        name: foundSeason.seasonName,
+        landAcres: foundSeason.acres,
+        startDate: foundSeason.startDate,
+        endDate: foundSeason.endDate,
+        crops: [{
+          id: foundSeason.cropId,
+          name: foundSeason.cropName,
+          image: getCropImage(foundSeason.cropName),
+          yieldPerAcre: foundSeason.yieldPerAcre,
+          price: foundSeason.price,
+          acres: foundSeason.acres,
+          expectedYield: foundSeason.expectedYield,
+          expectedIncome: foundSeason.expectedIncome
+        }],
+        progress: 0,
+        status: foundSeason.status,
+        expectedHarvest: foundSeason.endDate,
+        expectedIncome: foundSeason.expectedIncome,
+        isActive: isActive,
+        actualHarvest: foundSeason.actualHarvest,
+        income: foundSeason.income,
+        notes: foundSeason.notes
+      });
     } else {
-      // Mock data if not found (for demo)
+      // Fallback mock data
       setSeason({
         id: seasonId,
         name: "Maha 2024",
         landAcres: 2.5,
         startDate: "2024-01-15",
+        endDate: "2024-04-15",
         crops: [
-          { id: 1, name: "Rice", image: "🌾", yieldPerAcre: 1000, price: 150, acres: 2.5 },
-          { id: 2, name: "Chili", image: "🌶️", yieldPerAcre: 800, price: 300, acres: 1.5 }
+          { id: 1, name: "Rice", image: "🌾", yieldPerAcre: 1000, price: 150, acres: 2.5, expectedYield: 2500, expectedIncome: 375000 }
         ],
         progress: 65,
         status: "active",
         expectedHarvest: "2024-04-15",
-        expectedIncome: 750000,
+        expectedIncome: 375000,
         isActive: true
       });
     }
     
     setLoading(false);
   }, [params.id]);
+
+  const getCropImage = (cropName) => {
+    const images = {
+      "Rice": "🌾",
+      "Chili": "🌶️",
+      "Brinjal": "🍆",
+      "Maize": "🌽",
+      "Potato": "🥔",
+      "Onion": "🧅",
+      "Cabbage": "🥬",
+      "Carrot": "🥕"
+    };
+    return images[cropName] || "🌾";
+  };
 
   const handleEndSeason = () => {
     setShowEndModal(true);
@@ -66,47 +104,32 @@ export default function SeasonDetails() {
       return;
     }
 
-    // Get current seasons
-    const activeSeasons = JSON.parse(localStorage.getItem("activeSeasons") || "[]");
+    // Get current active seasons
+    const farmerSeasons = JSON.parse(localStorage.getItem("farmerSeasons") || "[]");
+    const completedSeason = farmerSeasons.find(s => s.id === season.id);
+    const updatedActive = farmerSeasons.filter(s => s.id !== season.id);
     
-    // Find and remove from active
-    const completedSeason = activeSeasons.find(s => s.id === season.id);
-    const updatedActive = activeSeasons.filter(s => s.id !== season.id);
-    
-    // Add to past seasons with harvest data
-    const pastSeasons = JSON.parse(localStorage.getItem("pastSeasons") || "[]");
+    // Add to past seasons
+    const pastSeasons = JSON.parse(localStorage.getItem("farmerPastSeasons") || "[]");
     const newPastSeason = {
       ...completedSeason,
       status: "completed",
       endDate: new Date().toISOString().split('T')[0],
       actualHarvest: parseFloat(harvestData.actualHarvest),
       notes: harvestData.notes,
-      income: parseFloat(harvestData.actualHarvest) * 150 // Mock price calculation
+      income: parseFloat(harvestData.actualHarvest) * (season.crops[0]?.price || 150)
     };
     
     pastSeasons.push(newPastSeason);
     
     // Save to localStorage
-    localStorage.setItem("activeSeasons", JSON.stringify(updatedActive));
-    localStorage.setItem("pastSeasons", JSON.stringify(pastSeasons));
+    localStorage.setItem("farmerSeasons", JSON.stringify(updatedActive));
+    localStorage.setItem("farmerPastSeasons", JSON.stringify(pastSeasons));
     
-    // Update state
     setSeason({ ...newPastSeason, isActive: false });
     setShowEndModal(false);
     
     alert("Season ended successfully!");
-  };
-
-  const calculateTotalExpectedYield = () => {
-    return season?.crops?.reduce((total, crop) => {
-      return total + (crop.acres * crop.yieldPerAcre);
-    }, 0) || 0;
-  };
-
-  const calculateTotalExpectedIncome = () => {
-    return season?.crops?.reduce((total, crop) => {
-      return total + (crop.acres * crop.yieldPerAcre * crop.price);
-    }, 0) || 0;
   };
 
   if (loading) {
@@ -135,7 +158,6 @@ export default function SeasonDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-modern sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
@@ -161,7 +183,6 @@ export default function SeasonDetails() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Season Header */}
@@ -169,7 +190,7 @@ export default function SeasonDetails() {
             <div>
               <h1 className="text-2xl font-bold text-secondary">{season.name}</h1>
               <p className="text-gray-500">
-                Started: {season.startDate} • {season.landAcres} total acres
+                Started: {season.startDate} • {season.landAcres} acres
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -191,28 +212,6 @@ export default function SeasonDetails() {
             </div>
           </div>
 
-          {/* Progress Section (for active seasons) */}
-          {season.isActive && (
-            <div className="bg-white rounded-xl shadow-modern p-6 mb-6">
-              <h2 className="text-lg font-semibold text-secondary mb-4">Progress</h2>
-              <div className="mb-2">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-500">Overall Progress</span>
-                  <span className="font-medium text-secondary">{season.progress}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-primary h-3 rounded-full"
-                    style={{ width: `${season.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Expected harvest: {season.expectedHarvest}
-              </p>
-            </div>
-          )}
-
           {/* Crops Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {season.crops?.map((crop, index) => (
@@ -233,7 +232,7 @@ export default function SeasonDetails() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Expected total:</span>
                     <span className="font-medium text-secondary">
-                      {crop.acres * crop.yieldPerAcre} kg
+                      {crop.expectedYield || (crop.acres * crop.yieldPerAcre)} kg
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -243,16 +242,15 @@ export default function SeasonDetails() {
                   <div className="flex justify-between text-sm pt-2 border-t border-gray-100">
                     <span className="text-gray-500">Expected income:</span>
                     <span className="font-bold text-primary">
-                      LKR {(crop.acres * crop.yieldPerAcre * crop.price).toLocaleString()}
+                      LKR {(crop.expectedIncome || (crop.acres * crop.yieldPerAcre * crop.price)).toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                {/* Actual harvest for completed seasons */}
-                {!season.isActive && crop.actualHarvest && (
+                {!season.isActive && season.actualHarvest && (
                   <div className="mt-4 p-3 bg-green-50 rounded-lg">
                     <p className="text-sm text-green-600">
-                      Actual harvest: {crop.actualHarvest} kg
+                      Actual harvest: {season.actualHarvest} kg
                     </p>
                   </div>
                 )}
@@ -267,13 +265,13 @@ export default function SeasonDetails() {
               <div>
                 <p className="text-sm text-gray-500">Total Expected Yield</p>
                 <p className="text-xl font-bold text-secondary">
-                  {calculateTotalExpectedYield().toLocaleString()} kg
+                  {season.crops?.reduce((total, c) => total + (c.expectedYield || (c.acres * c.yieldPerAcre)), 0).toLocaleString()} kg
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Total Expected Income</p>
                 <p className="text-xl font-bold text-primary">
-                  LKR {calculateTotalExpectedIncome().toLocaleString()}
+                  LKR {season.crops?.reduce((total, c) => total + (c.expectedIncome || (c.acres * c.yieldPerAcre * c.price)), 0).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -317,7 +315,6 @@ export default function SeasonDetails() {
               </p>
 
               <div className="space-y-4">
-                {/* Actual Harvest */}
                 <div>
                   <label className="block text-secondary font-medium mb-2">
                     Actual Harvest (kg) <span className="text-red-500">*</span>
@@ -334,7 +331,6 @@ export default function SeasonDetails() {
                   />
                 </div>
 
-                {/* Notes */}
                 <div>
                   <label className="block text-secondary font-medium mb-2">
                     Notes (Optional)
@@ -348,7 +344,6 @@ export default function SeasonDetails() {
                   />
                 </div>
 
-                {/* Buttons */}
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={handleConfirmEndSeason}

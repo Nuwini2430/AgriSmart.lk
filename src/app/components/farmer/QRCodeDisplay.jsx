@@ -6,13 +6,8 @@ import Card from "../common/Card";
 export default function QRCodeDisplay({ registration, onDownload, onClose }) {
   const [downloading, setDownloading] = useState(false);
 
-  // Mock QR code URL - In real app, this would come from backend
-  const qrCodeUrl = registration.qrCodeUrl || "/images/mock-qr.png";
-
   const handleDownload = async () => {
     setDownloading(true);
-    
-    // Simulate download
     setTimeout(() => {
       if (onDownload) {
         onDownload(registration);
@@ -23,61 +18,56 @@ export default function QRCodeDisplay({ registration, onDownload, onClose }) {
 
   return (
     <Card className="max-w-md mx-auto">
-      {/* Header */}
       <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-[#00A86B] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
           <span className="text-white text-2xl">🌾</span>
         </div>
-        <h3 className="text-xl font-bold text-[#1E293B] mb-1">
+        <h3 className="text-xl font-bold text-secondary mb-1">
           Registration Confirmed!
         </h3>
-        <p className="text-[#64748B]">
+        <p className="text-gray-500">
           Your QR code is ready for download
         </p>
       </div>
 
-      {/* QR Code Image */}
-      <div className="bg-white p-4 rounded-xl border-2 border-[#F1F5F9] mb-6">
-        <div className="aspect-square bg-[#F8FAFC] rounded-lg flex items-center justify-center">
-          {/* This would be actual QR code in real app */}
-          <div className="w-48 h-48 bg-gradient-to-br from-[#00A86B] to-[#00875A] rounded-lg flex items-center justify-center">
+      <div className="bg-white p-4 rounded-xl border-2 border-gray-100 mb-6">
+        <div className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center">
+          <div className="w-48 h-48 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
             <span className="text-white text-6xl">⬛</span>
           </div>
         </div>
       </div>
 
-      {/* Registration Details */}
-      <div className="bg-[#F8FAFC] p-4 rounded-lg mb-6">
-        <h4 className="font-medium text-[#1E293B] mb-3">Registration Details</h4>
+      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+        <h4 className="font-medium text-secondary mb-3">Registration Details</h4>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-[#64748B]">Registration ID:</span>
-            <span className="text-[#1E293B] font-medium">{registration.id}</span>
+            <span className="text-gray-500">Registration ID:</span>
+            <span className="text-secondary font-medium">{registration.id}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#64748B]">Farmer Name:</span>
-            <span className="text-[#1E293B] font-medium">{registration.farmerName}</span>
+            <span className="text-gray-500">Farmer Name:</span>
+            <span className="text-secondary font-medium">{registration.farmerName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#64748B]">NIC:</span>
-            <span className="text-[#1E293B] font-medium">{registration.nic}</span>
+            <span className="text-gray-500">NIC:</span>
+            <span className="text-secondary font-medium">{registration.nic}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#64748B]">Crop:</span>
-            <span className="text-[#1E293B] font-medium">{registration.crop}</span>
+            <span className="text-gray-500">Crop:</span>
+            <span className="text-secondary font-medium">{registration.crop}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#64748B]">Acres:</span>
-            <span className="text-[#1E293B] font-medium">{registration.acres}</span>
+            <span className="text-gray-500">Acres:</span>
+            <span className="text-secondary font-medium">{registration.acres}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#64748B]">Date:</span>
-            <span className="text-[#1E293B] font-medium">{registration.date}</span>
+            <span className="text-gray-500">Date:</span>
+            <span className="text-secondary font-medium">{registration.date}</span>
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex gap-3">
         <Button
           variant="primary"
@@ -97,8 +87,7 @@ export default function QRCodeDisplay({ registration, onDownload, onClose }) {
         </Button>
       </div>
 
-      {/* Note */}
-      <p className="text-xs text-center text-[#64748B] mt-4">
+      <p className="text-xs text-center text-gray-400 mt-4">
         Show this QR code when collecting your harvest or for verification
       </p>
     </Card>

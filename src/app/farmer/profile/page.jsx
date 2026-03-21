@@ -23,7 +23,6 @@ export default function FarmerProfile() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sri Lankan districts
   const districts = [
     "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", 
     "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", 
@@ -33,14 +32,12 @@ export default function FarmerProfile() {
   ];
 
   useEffect(() => {
-    // Check if user is logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
       router.push("/signin");
       return;
     }
 
-    // Load user data from localStorage
     const userProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
     const userPhone = localStorage.getItem("userPhone") || "";
 
@@ -54,11 +51,11 @@ export default function FarmerProfile() {
       fullName: userProfile.fullName || "",
       phoneNumber: userPhone,
       email: userProfile.email || "john.doe@example.com",
-      address: userProfile.address || "123 Main Street",
-      district: userProfile.district || "Colombo",
-      nic: userProfile.nicNumber || "821234567V",
-      birthday: userProfile.birthday || "1982-05-15",
-      bio: userProfile.bio || "Passionate farmer with 15 years of experience in sustainable farming."
+      address: userProfile.address || "",
+      district: userProfile.district || "",
+      nic: userProfile.nicNumber || "",
+      birthday: userProfile.birthday || "",
+      bio: userProfile.bio || "Passionate farmer with years of experience in sustainable farming."
     });
 
     if (userProfile.profilePic) {
@@ -94,9 +91,7 @@ export default function FarmerProfile() {
   const handleSave = () => {
     setSaving(true);
 
-    // Mock save - Replace with API call
     setTimeout(() => {
-      // Update localStorage
       const userProfile = {
         fullName: formData.fullName,
         email: formData.email,
@@ -167,10 +162,8 @@ export default function FarmerProfile() {
         <div className="max-w-3xl mx-auto">
           {/* Profile Header */}
           <div className="bg-white rounded-xl shadow-modern overflow-hidden mb-6">
-            {/* Cover Photo */}
             <div className="h-32 bg-gradient-to-r from-primary to-primary-dark"></div>
             
-            {/* Profile Info */}
             <div className="px-6 pb-6">
               <div className="flex justify-between items-start -mt-12">
                 {/* Profile Picture */}
@@ -239,7 +232,6 @@ export default function FarmerProfile() {
                 </div>
               </div>
 
-              {/* User Name */}
               <h1 className="text-2xl font-bold text-secondary mt-2">
                 {formData.fullName || user?.name}
               </h1>
@@ -252,11 +244,8 @@ export default function FarmerProfile() {
             <h2 className="text-lg font-semibold text-secondary mb-4">Personal Information</h2>
             
             <div className="space-y-4">
-              {/* Full Name */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Full Name
-                </label>
+                <label className="block text-secondary font-medium mb-2">Full Name</label>
                 <input
                   type="text"
                   name="fullName"
@@ -269,11 +258,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* Phone Number */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Phone Number
-                </label>
+                <label className="block text-secondary font-medium mb-2">Phone Number</label>
                 <input
                   type="tel"
                   name="phoneNumber"
@@ -286,11 +272,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Email Address
-                </label>
+                <label className="block text-secondary font-medium mb-2">Email Address</label>
                 <input
                   type="email"
                   name="email"
@@ -303,11 +286,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* NIC */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  NIC Number
-                </label>
+                <label className="block text-secondary font-medium mb-2">NIC Number</label>
                 <input
                   type="text"
                   name="nic"
@@ -320,11 +300,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* Birthday */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Birthday
-                </label>
+                <label className="block text-secondary font-medium mb-2">Birthday</label>
                 <input
                   type="date"
                   name="birthday"
@@ -337,11 +314,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* Address */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Address
-                </label>
+                <label className="block text-secondary font-medium mb-2">Address</label>
                 <textarea
                   name="address"
                   value={formData.address}
@@ -354,11 +328,8 @@ export default function FarmerProfile() {
                 />
               </div>
 
-              {/* District */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  District
-                </label>
+                <label className="block text-secondary font-medium mb-2">District</label>
                 <select
                   name="district"
                   value={formData.district}
@@ -368,17 +339,15 @@ export default function FarmerProfile() {
                     isEditing ? 'border-gray-200' : 'bg-gray-50 border-gray-100'
                   }`}
                 >
+                  <option value="">Select district</option>
                   {districts.map((district) => (
                     <option key={district} value={district}>{district}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Bio */}
               <div>
-                <label className="block text-secondary font-medium mb-2">
-                  Bio
-                </label>
+                <label className="block text-secondary font-medium mb-2">Bio</label>
                 <textarea
                   name="bio"
                   value={formData.bio}

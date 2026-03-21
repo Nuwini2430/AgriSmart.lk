@@ -7,7 +7,6 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Filter farmers based on search and status
   const filteredFarmers = farmers.filter(farmer => {
     const matchesSearch = 
       farmer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -20,22 +19,14 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-modern p-6">
-      {/* Header */}
+    <div className="bg-white rounded-2xl shadow-modern p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-[#1E293B]">Farmers Management</h3>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            onClick={onExport}
-          >
-            Export List
-          </Button>
-        </div>
+        <h3 className="text-lg font-semibold text-secondary">Farmers Management</h3>
+        <Button variant="secondary" onClick={onExport}>
+          Export List
+        </Button>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1">
           <Input
@@ -53,8 +44,8 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
               onClick={() => setFilterStatus(status)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filterStatus === status
-                  ? "bg-[#00A86B] text-white"
-                  : "bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0]"
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -63,48 +54,50 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[#F8FAFC]">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Farmer</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">NIC</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Phone</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Registered Crops</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Total Acres</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Status</th>
-              <th className="p-3 text-left text-sm font-medium text-[#64748B]">Actions</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Farmer</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">NIC</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Phone</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">District</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Crops</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Acres</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Status</th>
+              <th className="p-3 text-left text-sm font-medium text-gray-500">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredFarmers.length > 0 ? (
               filteredFarmers.map((farmer, index) => (
-                <tr key={index} className="border-t border-[#F1F5F9] hover:bg-[#F8FAFC] transition-colors">
+                <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#00A86B]/10 rounded-full flex items-center justify-center">
-                        <span className="text-[#00A86B] text-sm">🌾</span>
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-primary text-sm font-bold">{farmer.name.charAt(0)}</span>
                       </div>
-                      <span className="text-[#1E293B] font-medium">{farmer.name}</span>
+                      <span className="font-medium text-secondary">{farmer.name}</span>
                     </div>
                   </td>
-                  <td className="p-3 text-[#64748B]">{farmer.nic}</td>
-                  <td className="p-3 text-[#64748B]">{farmer.phone}</td>
-                  <td className="p-3 text-[#1E293B]">{farmer.cropCount}</td>
-                  <td className="p-3 text-[#1E293B]">{farmer.totalAcres}</td>
+                  <td className="p-3 text-gray-600">{farmer.nic}</td>
+                  <td className="p-3 text-gray-600">{farmer.phone}</td>
+                  <td className="p-3 text-gray-600">{farmer.district}</td>
+                  <td className="p-3 text-gray-600">{farmer.crops}</td>
+                  <td className="p-3 text-gray-600">{farmer.totalAcres}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium
-                      ${farmer.status === 'active' ? 'bg-[#E8F5E9] text-[#00A86B]' : 
-                        farmer.status === 'pending' ? 'bg-[#FEF3C7] text-[#F59E0B]' : 
-                        'bg-[#F1F5F9] text-[#64748B]'}`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      farmer.status === "active" ? "bg-green-100 text-green-600" : 
+                      farmer.status === "pending" ? "bg-yellow-100 text-yellow-600" : 
+                      "bg-gray-100 text-gray-600"
+                    }`}>
                       {farmer.status}
                     </span>
                   </td>
                   <td className="p-3">
                     <button
                       onClick={() => onViewDetails(farmer)}
-                      className="text-[#00A86B] hover:text-[#00875A] font-medium text-sm"
+                      className="text-primary hover:text-primary-dark text-sm font-medium"
                     >
                       View Details
                     </button>
@@ -113,7 +106,7 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="p-8 text-center text-[#64748B]">
+                <td colSpan="8" className="p-8 text-center text-gray-500">
                   No farmers found
                 </td>
               </tr>
@@ -122,9 +115,8 @@ export default function FarmerTable({ farmers = [], onViewDetails, onExport }) {
         </table>
       </div>
 
-      {/* Footer */}
-      <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#F1F5F9]">
-        <p className="text-sm text-[#64748B]">
+      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+        <p className="text-sm text-gray-500">
           Showing {filteredFarmers.length} of {farmers.length} farmers
         </p>
         

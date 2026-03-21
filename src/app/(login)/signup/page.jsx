@@ -15,13 +15,11 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Phone number validation (Sri Lanka)
   const validatePhoneNumber = (phone) => {
     const sriLankaPhoneRegex = /^(?:0|94|\+94)?(7[0-9]{8})$/;
     return sriLankaPhoneRegex.test(phone);
   };
 
-  // Password strength check
   const validatePassword = (password) => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
@@ -33,8 +31,7 @@ export default function SignUp() {
       hasUpperCase,
       hasLowerCase,
       hasNumbers,
-      hasSpecialChar,
-      length: password.length >= 6
+      hasSpecialChar
     };
   };
 
@@ -43,7 +40,6 @@ export default function SignUp() {
     setError("");
     setLoading(true);
 
-    // Validation
     if (!validatePhoneNumber(formData.phoneNumber)) {
       setError("Please enter a valid Sri Lankan phone number");
       setLoading(false);
@@ -69,14 +65,9 @@ export default function SignUp() {
       return;
     }
 
-    // Mock signup - Replace with actual API call
     setTimeout(() => {
-      // Mock successful signup
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userPhone", formData.phoneNumber);
-      localStorage.setItem("justSignedUp", "true");
-      
-      // Redirect to create profile page
       router.push("/signup/createprofile");
       setLoading(false);
     }, 1500);
@@ -86,14 +77,12 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      {/* Background Decoration */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="w-full max-w-md">
-        {/* Logo and Title */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <div className="flex justify-center mb-4">
@@ -111,10 +100,8 @@ export default function SignUp() {
           <p className="text-gray-500 mt-1">Join AgriSmart today</p>
         </div>
 
-        {/* Sign Up Form */}
         <div className="bg-white rounded-xl shadow-modern-lg p-8">
           <form onSubmit={handleSubmit}>
-            {/* Phone Number Input */}
             <div className="mb-4">
               <label className="block text-secondary font-medium mb-2">
                 Phone Number <span className="text-red-500">*</span>
@@ -130,7 +117,6 @@ export default function SignUp() {
               <p className="text-xs text-gray-400 mt-1">Example: 0712345678</p>
             </div>
 
-            {/* Password Input */}
             <div className="mb-4">
               <label className="block text-secondary font-medium mb-2">
                 Password <span className="text-red-500">*</span>
@@ -144,11 +130,10 @@ export default function SignUp() {
                 required
               />
               
-              {/* Password Strength Indicator */}
               {formData.password.length > 0 && (
                 <div className="mt-2 space-y-1">
                   <div className="flex gap-1">
-                    <div className={`h-1 flex-1 rounded-full ${passwordStrength.length ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                    <div className={`h-1 flex-1 rounded-full ${passwordStrength.isValid ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                     <div className={`h-1 flex-1 rounded-full ${passwordStrength.hasUpperCase || passwordStrength.hasLowerCase ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                     <div className={`h-1 flex-1 rounded-full ${passwordStrength.hasNumbers ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                     <div className={`h-1 flex-1 rounded-full ${passwordStrength.hasSpecialChar ? 'bg-green-500' : 'bg-gray-200'}`}></div>
@@ -160,7 +145,6 @@ export default function SignUp() {
               )}
             </div>
 
-            {/* Confirm Password Input */}
             <div className="mb-4">
               <label className="block text-secondary font-medium mb-2">
                 Confirm Password <span className="text-red-500">*</span>
@@ -178,7 +162,6 @@ export default function SignUp() {
               )}
             </div>
 
-            {/* Terms and Conditions */}
             <div className="mb-6">
               <label className="flex items-start gap-2 cursor-pointer">
                 <input
@@ -201,18 +184,16 @@ export default function SignUp() {
               </label>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
                 ⚠️ {error}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors shadow-modern disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors shadow-modern disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -226,7 +207,6 @@ export default function SignUp() {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
@@ -236,7 +216,6 @@ export default function SignUp() {
             </div>
           </div>
 
-          {/* Social Sign Up Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <button className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -255,7 +234,6 @@ export default function SignUp() {
             </button>
           </div>
 
-          {/* Sign In Link */}
           <p className="text-center mt-8 text-gray-600">
             Already have an account?{" "}
             <Link href="/signin" className="text-primary font-medium hover:text-primary-dark transition-colors">
