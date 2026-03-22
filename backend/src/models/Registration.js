@@ -26,9 +26,16 @@ const registrationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'active', 'completed'],
     default: 'approved'
   },
+  cropName: String,
+  cropImage: String,
+  seasonName: String,
+  startDate: Date,
+  endDate: Date,
+  yieldPerAcre: Number,
+  price: Number,
   qrCode: String,
   registeredDate: {
     type: Date,

@@ -16,6 +16,8 @@ const startSeason = async (req, res) => {
 
     const season = await Season.create({
       crop: cropId,
+      cropName: crop.name,
+      cropImage: crop.image,
       name,
       startDate,
       endDate,
@@ -27,8 +29,10 @@ const startSeason = async (req, res) => {
       status: 'active'
     });
 
-    res.status(201).json(season);
+    const populatedSeason = await Season.findById(season._id).populate('crop', 'name image');
+    res.status(201).json(populatedSeason);
   } catch (error) {
+    console.error("Start season error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -37,9 +41,12 @@ const startSeason = async (req, res) => {
 // @route   GET /api/seasons/active
 const getActiveSeasons = async (req, res) => {
   try {
-    const seasons = await Season.find({ status: 'active' }).populate('crop', 'name image');
+    const seasons = await Season.find({ status: 'active' })
+      .populate('crop', 'name image')
+      .sort({ startDate: -1 });
     res.json(seasons);
   } catch (error) {
+    console.error("Get active seasons error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -66,7 +73,7 @@ const endSeason = async (req, res) => {
       req.params.id,
       { status: 'completed' },
       { new: true }
-    );
+    ).populate('crop', 'name image');
     if (!season) {
       return res.status(404).json({ message: 'Season not found' });
     }
@@ -76,4 +83,58 @@ const endSeason = async (req, res) => {
   }
 };
 
-module.exports = { startSeason, getActiveSeasons, getSeasonById, endSeason };
+// @desc    Get all seasons (Admin only)
+// @route   GET /api/seasons/all
+const getAllSeasons = async (req, res) => {
+  try {
+    const seasons = await Season.find()
+      .populate('crop', 'name image')
+      .sort({ createdAt: -1 });
+    res.json(seasons);
+  } catch (error) {
+    console.error("Get all seasons error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update season (Admin only)
+// @route   PUT /api/seasons/:id
+const updateSeason = async (req, res) => {
+  try {
+    const season = await Season.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).populate('crop', 'name image');
+    if (!season) {
+      return res.status(404).json({ message: 'Season not found' });
+    }
+    res.json(season);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete season (Admin only)
+// @route   DELETE /api/seasons/:id
+const deleteSeason = async (req, res) => {
+  try {
+    const season = await Season.findByIdAndDelete(req.params.id);
+    if (!season) {
+      return res.status(404).json({ message: 'Season not found' });
+    }
+    res.json({ message: 'Season deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { 
+  startSeason, 
+  getActiveSeasons, 
+  getSeasonById, 
+  endSeason,
+  getAllSeasons,
+  updateSeason,
+  deleteSeason
+};

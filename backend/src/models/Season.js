@@ -6,6 +6,13 @@ const seasonSchema = new mongoose.Schema({
     ref: 'Crop',
     required: true
   },
+  cropName: {
+    type: String
+  },
+  cropImage: {
+    type: String,
+    default: '🌾'
+  },
   name: {
     type: String,
     required: [true, 'Season name is required']

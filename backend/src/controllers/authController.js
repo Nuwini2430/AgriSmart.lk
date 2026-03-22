@@ -8,20 +8,26 @@ const generateToken = (id) => {
   });
 };
 
+// @desc    Register user
+// @route   POST /api/auth/register
 const register = async (req, res) => {
   try {
     const { phoneNumber, password } = req.body;
 
+    // Check if user exists
     const userExists = await User.findOne({ phoneNumber });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const user = await User.create({
       phoneNumber,
-      password: hashedPassword
+      password: hashedPassword,
+      role: 'farmer'
     });
 
     res.status(201).json({
@@ -36,6 +42,8 @@ const register = async (req, res) => {
   }
 };
 
+// @desc    Login user
+// @route   POST /api/auth/login
 const login = async (req, res) => {
   try {
     const { phoneNumber, password } = req.body;
@@ -62,6 +70,8 @@ const login = async (req, res) => {
   }
 };
 
+// @desc    Get current user
+// @route   GET /api/auth/me
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
