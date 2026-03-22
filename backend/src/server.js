@@ -70,3 +70,8 @@ app.listen(PORT, () => {
   console.log(`📡 API URL: http://localhost:${PORT}`);
   console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+ 
+app.use('/api/seasons', require('./routes/seasonRoutes'));
+app.use('/api/registrations', require('./routes/registrationRoutes'));
+app.use('/api/farmers', require('./routes/farmerRoutes'));
