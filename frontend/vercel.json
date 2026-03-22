@@ -4,7 +4,13 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://agrismart-lk.onrender.com/api/$1"
+    }
+  ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://api.agrismart.lk/api"
+    "NEXT_PUBLIC_API_URL": "/api"
   }
 }
