@@ -2,43 +2,57 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
-const seedAdmin = require('./utils/seedAdmin');
+// const seedAdmin = require('./utils/seedAdmin'); // REMOVE THIS LINE
 
 dotenv.config();
 
 connectDB();
 
 // Seed admin user
-seedAdmin();
+// seedAdmin(); // REMOVE THIS LINE
 
 const app = express();
 
-// ========== CORS Configuration for Production ==========
+// ========== CORS Configuration ==========
+// Allowed origins for production and development
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
   'http://localhost:5000',
+  'http://localhost:5004',
   'https://agrismart.lk',
   'https://www.agrismart.lk',
   'https://agrismart.vercel.app',
-  'https://app.agrismart.lk',
+  'https://agrismart-blond.vercel.app',
+  'https://agrismart-marketing.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+// CORS middleware with better error handling
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     
+    // Check if origin is allowed
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      // For development, allow all origins (temporary fix)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('CORS: Allowing development origin:', origin);
+        callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Handle preflight requests

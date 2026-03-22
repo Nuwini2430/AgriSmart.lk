@@ -4,23 +4,26 @@ const {
   startSeason, 
   getActiveSeasons, 
   getSeasonById, 
-  endSeason
+  endSeason,
+  getAllSeasons,
+  updateSeason,
+  deleteSeason
 } = require('../controllers/seasonController');
 const { protect } = require('../middleware/auth');
 const { adminOnly } = require('../middleware/admin');
 
 // @route   POST /api/seasons - Start new season (Admin only)
-// @route   GET /api/seasons/active - Get all active seasons
-router.route('/')
-  .post(protect, adminOnly, startSeason);
+router.post('/', protect, adminOnly, startSeason);
 
+// @route   GET /api/seasons/active - Get all active seasons
 router.get('/active', getActiveSeasons);
 
-router.route('/:id')
-  .get(getSeasonById)
-  .put(protect, adminOnly, endSeason);
+// @route   GET /api/seasons - Get all seasons (Admin only)
+router.get('/', protect, adminOnly, getAllSeasons);
 
-// @route   PUT /api/seasons/:id/end - End season (Admin only)
+router.get('/:id', getSeasonById);
+router.put('/:id', protect, adminOnly, updateSeason);
 router.put('/:id/end', protect, adminOnly, endSeason);
+router.delete('/:id', protect, adminOnly, deleteSeason);
 
 module.exports = router;

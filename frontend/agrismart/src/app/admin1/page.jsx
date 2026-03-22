@@ -170,7 +170,6 @@ export default function AdminDashboard() {
 
   const handleEndSeason = async (cropId) => {
     try {
-      // Make sure we have a valid season ID
       const crop = crops.find(c => c._id === cropId);
       if (!crop || !crop.seasonDetails) {
         alert("No active season found for this crop");
@@ -223,8 +222,6 @@ export default function AdminDashboard() {
 
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-modern-lg py-2 z-50 animate-scale-in">
-                  <Link href="/admin1/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary transition-colors">Settings</Link>
-                  <hr className="my-2" />
                   <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Sign Out</button>
                 </div>
               )}
@@ -282,7 +279,7 @@ export default function AdminDashboard() {
             <div className="card-modern overflow-hidden p-0">
               <div className="overflow-x-auto">
                 <table className="table w-full">
-                  <thead><tr className="bg-gray-50"><th className="p-4 text-left text-sm font-medium text-gray-500">Farmer</th><th className="p-4 text-left text-sm font-medium text-gray-500">NIC</th><th className="p-4 text-left text-sm font-medium text-gray-500">Phone</th><th className="p-4 text-left text-sm font-medium text-gray-500">District</th><th className="p-4 text-left text-sm font-medium text-gray-500">Registered Date</th><th className="p-4 text-left text-sm font-medium text-gray-500">Crops</th><th className="p-4 text-left text-sm font-medium text-gray-500">Total Acres</th><th className="p-4 text-left text-sm font-medium text-gray-500">Status</th>  </tr></thead>
+                  <thead><tr className="bg-gray-50"><th className="p-4 text-left text-sm font-medium text-gray-500">Farmer</th><th className="p-4 text-left text-sm font-medium text-gray-500">NIC</th><th className="p-4 text-left text-sm font-medium text-gray-500">Phone</th><th className="p-4 text-left text-sm font-medium text-gray-500">District</th><th className="p-4 text-left text-sm font-medium text-gray-500">Registered Date</th><th className="p-4 text-left text-sm font-medium text-gray-500">Crops</th><th className="p-4 text-left text-sm font-medium text-gray-500">Total Acres</th><th className="p-4 text-left text-sm font-medium text-gray-500">Status</th>   </tr></thead>
                   <tbody>
                     {farmers.map((farmer) => (
                       <tr key={farmer._id} className="border-t border-gray-100 hover:bg-gray-50">
