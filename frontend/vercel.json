@@ -8,14 +8,6 @@
     {
       "source": "/api/(.*)",
       "destination": "https://agrismart-lk.onrender.com/api/$1"
-    },
-    {
-      "source": "/app/(.*)",
-      "destination": "/$1"
-    },
-    {
-      "source": "/((?!app|api|_next|favicon.ico|images|videos).*)",
-      "destination": "/marketing/$1"
     }
   ],
   "env": {
